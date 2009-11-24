@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<script src="js/jquery.js"></script>
+		<script>	
+			var lastCmd = "";
+			var execute = function(){
+				var cmd = $("input").val();
+				lastCmd = cmd;
+				$("input").val("");
+				var url = "http://127.0.0.1:8000/?cmd=" + cmd + "&jsonp=?";
+				jQuery.getJSON(url, function(data){
+					var out = data[0].output;
+					out = out.replace("\n", "<br />", "g");
+					var content = $("#output").html() +"<br />" + lastCmd + "<br />" + out;
+					$("#output").html(content);
+				});
+			}
+			
+			$("body").live("keyup", function(e){
+				if(e.keyCode == "13"){
+					execute();
+				}
+			});
+			
+			$(document).ready(function(){
+				$("input").focus();
+			})
+		</script>
+		<style type="text/css" media="screen">
+			div#output {width:800px; height:500px; overflow:auto; background-color:black; color:white; font-size:15px; padding:10px;}
+			input {width:820px; font-size:15px; background-color:grey; color:white;}
+		</style>
+	</head>
+	<body>
+		<div id="output"></div>
+		<input type="text" />
+	</body>
+</html>
