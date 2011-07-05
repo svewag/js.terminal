@@ -12,6 +12,7 @@
 					var out = data[0].output;
 					out = out.replace("\n", "<br />", "g");
 					var content = $("#output").html() +"<br />" + lastCmd + "<br />" + out;
+					content = content.replace(/\n/g, "<br />");
 					$("#output").html(content);
 				});
 			}
