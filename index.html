@@ -9,7 +9,7 @@
 			var execute = function(cmd, hideOutput){
 				saveCmd(getCmd());
 				lastCmdPosition = null;
-				var command = cmd || getLastCmd();
+				var command = cmd || getCmd();
 				var url = "http://127.0.0.1:8000/?cmd=" + command + "&jsonp=?";
 				jQuery.getJSON(url, function(data){
 					cmdCounter++;

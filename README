@@ -1,3 +1,4 @@
 * start server.js via Node.js
 * open index.html on your browser
-* type "ls -l" e.g. in the lower input and see the result in the upper output area
+* type "ls -l" e.g., hit ENTER and see the result in the window
+

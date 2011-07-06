@@ -1,0 +1,12 @@
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/y0da--ssd-root
+                       37G  2.6G   33G   8% /
+none                  5.9G  720K  5.9G   1% /dev
+none                  5.9G  388K  5.9G   1% /dev/shm
+none                  5.9G  116K  5.9G   1% /var/run
+none                  5.9G     0  5.9G   0% /var/lock
+/dev/mapper/root-home
+                       19G  4.8G   14G  26% /home
+/dev/mapper/root-var   19G  688M   18G   4% /var
+/dev/sda1             1.8G   24M  1.7G   2% /boot
+/dev/mapper/root-tmp  4.7G   33M  4.7G   1% /tmp
