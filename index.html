@@ -1,39 +1,109 @@
 <html>
 	<head>
+		<title>js.terminal</title>
 		<script src="js/jquery.js"></script>
 		<script>	
-			var lastCmd = "";
-			var execute = function(){
-				var cmd = $("input").val();
-				lastCmd = cmd;
-				$("input").val("");
-				var url = "http://127.0.0.1:8000/?cmd=" + cmd + "&jsonp=?";
+			var lastCmd = [];
+			var cmdCounter = 0;
+			var lastCmdPosition = null;
+			var execute = function(cmd, hideOutput){
+				saveCmd(getCmd());
+				lastCmdPosition = null;
+				var command = cmd || getLastCmd();
+				var url = "http://127.0.0.1:8000/?cmd=" + command + "&jsonp=?";
 				jQuery.getJSON(url, function(data){
-					var out = data[0].output;
+					cmdCounter++;
+					var out = hideOutput ? "" : data[0].output;
+					var user = data[0].user;
+					var hostname = data[0].hostname;
+					var path = data[0].path;
 					out = out.replace("\n", "<br />", "g");
-					var content = $("#output").html() +"<br />" + lastCmd + "<br />" + out;
+					var line = hostname + ":" + path + " " + user + "$ ";
+					var content = "";
+					if(cmdCounter > 1){
+						content += "<br />";
+					}
+ 					content += out + line + "<span data-cmd='"+cmdCounter+"'></span>";
 					content = content.replace(/\n/g, "<br />");
-					$("#output").html(content);
+					$("#ende").before(content);
+					offset = $("#ende").offset();
+					window.scrollTo(offset.left, offset.top);
 				});
 			}
-			
-			$("body").live("keyup", function(e){
+
+			function saveCmd(cmd){
+				if(cmd === ""){return};
+				lastCmd.push(cmd);
+			}
+
+			function getLastCmd(){
+				return lastCmd[lastCmd.length-1];
+			}
+
+			function getCmd(){
+				return getCmdInput().text();
+			}
+
+			function getCmdInput(){
+				return $("[data-cmd='"+cmdCounter+"']");
+			}
+
+			$("body").live("keydown", function(e){
+				if(e.keyCode == "8"){
+					e.preventDefault();
+					var input = getCmd();
+					var newInput = input.substring(0, input.length-1);
+					getCmdInput().text(newInput);
+					return false;
+				}
+
+				if(e.keyCode == "38"){ // up arrow
+					if(lastCmd.length>0){
+						if(lastCmdPosition == null){ 
+							lastCmdPosition = lastCmd.length -1; 
+						} else {
+							lastCmdPosition -= 1;
+						}
+						if(lastCmdPosition < 0){ lastCmdPosition = 0; }
+						getCmdInput().text(lastCmd[lastCmdPosition]);
+					}
+					return false;
+				}
+
+				if(e.keyCode == "40"){ // down arrow
+					var c = null;
+					
+					if(lastCmdPosition != null && lastCmdPosition >= 0 && lastCmdPosition + 1 < lastCmd.length){
+						lastCmdPosition++;
+						c = lastCmd[lastCmdPosition];
+					} else {
+						c = "";
+						lastCmdPosition = null;
+					}
+
+					getCmdInput().text(c);
+				}
+			});
+	
+			$("body").live("keypress", function(e){
 				if(e.keyCode == "13"){
 					execute();
+					return;
 				}
+				var char = String.fromCharCode(e.charCode);
+				getCmdInput().append(char);
 			});
 			
 			$(document).ready(function(){
-				$("input").focus();
-			})
+				execute("pwd", true);
+			});
 		</script>
 		<style type="text/css" media="screen">
-			div#output {width:800px; height:500px; overflow:auto; background-color:black; color:white; font-size:15px; padding:10px;}
-			input {width:820px; font-size:15px; background-color:grey; color:white;}
+			body {background-color:black; color:white; font-size:15px; padding:10px; font-family:"Courier New";}
 		</style>
 	</head>
 	<body>
-		<div id="output"></div>
-		<input type="text" />
+		<span data-cmd="0"></span>
+		<div id="ende"></div>
 	</body>
 </html>
