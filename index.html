@@ -17,7 +17,8 @@
 					scrollToEnd();
 					return;
 				}
-				saveCmd(command);	
+				if(command === "clear"){ location.href = location.href;}
+				if(!hideOutput){ saveCmd(command);}	
 				lastCmdPosition = null;
 				var url = "http://127.0.0.1:8000/?path="+currentPath+"&cmd=" + command + "&jsonp=?";
 				jQuery.getJSON(url, function(data){
