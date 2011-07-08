@@ -18,11 +18,14 @@ http.createServer(function(request, response){
 	var query = URL.parse(request.url, true).query;
 	if(!query){ response.end(); return; }
 	var cmd = query.cmd;
+	var path = query.path;
 	var callback = query.jsonp;
 	
 	if(cmd){
 		sys.puts("exec " + cmd);
+		if(path){process.chdir(path);}
 		exec(cmd, function(error, stdout, stderr){
+			if(cmd.match(/^cd/)){ process.chdir(cmd.replace(/^cd /, "")); }
 			exec("pwd", function(err, path){
 				path = path.replace(/\n/, "");
 				response.writeHead(200, {"Content-Type": "application/javascript"});
@@ -34,6 +37,7 @@ http.createServer(function(request, response){
 					"path": path,
 					"output": result,
 				};
+				sys.puts("path:"+hash.path);
 				var data = callback + "([" + JSON.stringify(hash) + "])";
 				sys.puts(data);
 				response.write(data);

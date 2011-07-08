@@ -3,36 +3,49 @@
 		<title>js.terminal</title>
 		<script src="js/jquery.js"></script>
 		<script>	
+			var commandLine = "";
 			var lastCmd = [];
 			var cmdCounter = 0;
 			var lastCmdPosition = null;
+			var currentPath = "";
 			var execute = function(cmd, hideOutput){
-				saveCmd(getCmd());
-				lastCmdPosition = null;
+				$(".cursor").remove();
 				var command = cmd || getCmd();
-				var url = "http://127.0.0.1:8000/?cmd=" + command + "&jsonp=?";
+				if(command === ""){
+					cmdCounter++;
+					$("#ende").before("<div class='commandLine'>"+commandLine + "<span data-cmd='"+cmdCounter+"'></span><span class='cursor'>&nbsp;</span></div>");
+					scrollToEnd();
+					return;
+				}
+				saveCmd(command);	
+				lastCmdPosition = null;
+				var url = "http://127.0.0.1:8000/?path="+currentPath+"&cmd=" + command + "&jsonp=?";
 				jQuery.getJSON(url, function(data){
 					cmdCounter++;
 					var out = hideOutput ? "" : data[0].output;
 					var user = data[0].user;
 					var hostname = data[0].hostname;
 					var path = data[0].path;
+					currentPath = path;
 					out = out.replace("\n", "<br />", "g");
-					var line = hostname + ":" + path + " " + user + "$ ";
+					var line =  "<span class='user'>" + user + "@</span>" + "<span class='host'>" + hostname + "</span>:<span class='path'>" + path + "</span>$ ";
+					commandLine = line;
 					var content = "";
-					if(cmdCounter > 1){
-						content += "<br />";
-					}
- 					content += out + line + "<span data-cmd='"+cmdCounter+"'></span>";
+ 					content += out + line + "<span data-cmd='"+cmdCounter+"'></span><span class='cursor'>&nbsp;</span>";
 					content = content.replace(/\n/g, "<br />");
-					$("#ende").before(content);
-					offset = $("#ende").offset();
-					window.scrollTo(offset.left, offset.top);
+					$("#ende").before("<div class='commandLine'>"+content+"</div>");
+					scrollToEnd();
 				});
+			}
+
+			function scrollToEnd(){
+				var offset = $("#ende").offset();
+				offset && window.scrollTo(offset.left, offset.top);
 			}
 
 			function saveCmd(cmd){
 				if(cmd === ""){return};
+				if(cmd === lastCmd[lastCmd.length-1]){return}
 				lastCmd.push(cmd);
 			}
 
@@ -49,11 +62,17 @@
 			}
 
 			$("body").live("keydown", function(e){
-				if(e.keyCode == "8"){
+				if(e.keyCode == "8"){ // backspace
 					e.preventDefault();
 					var input = getCmd();
 					var newInput = input.substring(0, input.length-1);
 					getCmdInput().text(newInput);
+					return false;
+				}
+
+				if(e.keyCode == "9"){// TAB
+					e.preventDefault();
+					execute("^I");
 					return false;
 				}
 
@@ -100,6 +119,10 @@
 		</script>
 		<style type="text/css" media="screen">
 			body {background-color:black; color:white; font-size:15px; padding:10px; font-family:"Courier New";}
+			.commandLine {padding-top:4px;}
+			.host, .user {color:lightgreen;}
+			.path {color:blue;}
+			.cursor {background-color:grey;}
 		</style>
 	</head>
 	<body>
