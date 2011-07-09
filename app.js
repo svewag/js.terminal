@@ -6,7 +6,10 @@
 var express = require('express');
 var app = module.exports = express.createServer();
 var io = require("socket.io").listen(app);
-var exec = require("child_process").exec;
+var child = require("child_process");
+var exec = child.exec;
+var spawn = child.spawn;
+
 // Configuration
 
 app.configure(function(){
