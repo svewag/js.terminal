@@ -1,4 +1,4 @@
-* start server.js via Node.js
-* open index.html on your browser
+* start app.js via Node.js
+* open 127.0.0.1:3000 on your browser
 * type "ls -l" e.g., hit ENTER and see the result in the window
 
